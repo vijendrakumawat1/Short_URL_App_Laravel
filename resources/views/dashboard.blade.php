@@ -78,7 +78,7 @@
                                     @foreach (App\Models\ShortUrl::where('user_id', $user->id)->get() as $url)
                                         <tr>
                                             <td class="border px-4 py-2"><a
-                                                    href={{ $url->long_url }}>{{ $url->short_code }}</a></td>
+                                                    href={{ $url->long_url }}>{{ $url->short_url }}</a></td>
                                             <td class="border px-4 py-2">{{ $url->long_url }}</td>
                                         </tr>
                                     @endforeach
