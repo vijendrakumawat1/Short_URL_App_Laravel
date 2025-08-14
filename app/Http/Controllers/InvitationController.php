@@ -34,9 +34,9 @@ class InvitationController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email'      => 'required|email|unique:invitations,email',
+            'email'      => 'required|email|unique:users,email',
             'role'       => 'required|in:Admin,Member',
-            'company_id' => 'nullable|exists:companies,id',
+            'name'       => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -48,25 +48,32 @@ class InvitationController extends Controller
         }
 
         $user = auth()->user();
-        if ($request->role === 'Admin' && empty($request->company_id)) {
-            abort(403, 'SuperAdmin can’t invite an Admin in a new company.');
-        }
-        if (
-            $user->role === 'Admin' &&
-            in_array($request->role, ['Admin', 'Member']) &&
-            $request->company_id == $user->company_id
-        ) {
-            abort(403, 'Admin can’t invite another Admin or Member in their own company.');
+
+        // Only SuperAdmin can invite Admins, and only to an existing company
+        if ($request->role === 'Admin') {
+            if ($user->role !== 'SuperAdmin') {
+                abort(403, 'Only SuperAdmin can invite Admins.');
+            }
+            if (empty($user->company_id)) {
+                abort(403, 'SuperAdmin must belong to a company to invite Admins.');
+            }
+            $company_id = $user->company_id;
+        } else {
+            // Only Admin can invite Members in their own company
+            if ($user->role !== 'Admin') {
+                abort(403, 'Only Admin can invite Members.');
+            }
+            $company_id = $user->company_id;
         }
 
-        $invitation             = new User();
-        $invitation->name       = $request->name;
-        $invitation->email      = $request->email;
-        $invitation->role       = $request->role;
-        $invitation->company_id = $user->company_id ?? null;
-        $invitation->password   = Hash::make('Admin@123'); // Temporary password
+        $invitedUser             = new User();
+        $invitedUser->name       = $request->name;
+        $invitedUser->email      = $request->email;
+        $invitedUser->role       = $request->role;
+        $invitedUser->company_id = $company_id;
+        $invitedUser->password   = Hash::make(Str::random(12)); // Temporary password
 
-        $invitation->save();
+        $invitedUser->save();
 
         return redirect()->route('invite.index')
             ->with('success', 'Invitation sent successfully.');
