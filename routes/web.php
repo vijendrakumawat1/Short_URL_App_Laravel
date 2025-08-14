@@ -1,7 +1,8 @@
 <?php
-use App\Http\Controllers\ShortUrlController;
+use App\Http\Controllers\CompanyDashboardController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ShortUrlController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,7 +14,11 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-        // Invitations
+    // Invitations
+    Route::get('/company', [CompanyDashboardController::class, 'create'])->name('company.create');
+    Route::post('/company/create', [CompanyDashboardController::class, 'store'])->name('company.store');
+    Route::get('/company/index', [CompanyDashboardController::class, 'index'])->name('company.index');
+
     Route::get('/invite', [InvitationController::class, 'index'])->name('invite.index');
     Route::get('/invite/create', [InvitationController::class, 'create'])->name('invite.create');
     Route::post('/invite', [InvitationController::class, 'store'])->name('invite.store');
@@ -25,10 +30,10 @@ Route::middleware('auth')->group(function () {
 
     // Redirect (must be logged in)
     Route::get('/r/{short_code}', [ShortUrlController::class, 'redirect'])->name('shorturls.redirect');
-    
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

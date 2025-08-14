@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ShortUrl extends Model
 {
     use HasFactory;
-protected $fillable = ['long_url', 'short_code', 'user_id', 'company_id'];
+protected $fillable = ['long_url', 'short_url', 'user_id', 'company_id'];
     public function company()
     {
         return $this->belongsTo(Company::class);

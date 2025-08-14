@@ -5,7 +5,9 @@ use App\Models\ShortUrl; // <-- Import this
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use App\Policies\ShortUrlPolicy; // <-- Import the policy
 class ShortUrlController extends Controller
 {
     use AuthorizesRequests; // <-- Add this line
@@ -13,9 +15,13 @@ class ShortUrlController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $urls = ShortUrl::all()->filter(function($url) use ($user) {
-            return app(\App\Policies\ShortUrlPolicy::class)->view($user, $url);
-        });
+        if ($user->role === 'SuperAdmin') {
+            $urls = collect([]);
+        } else {
+            $urls = ShortUrl::all()->filter(function($url) use ($user) {
+                return app(\App\Policies\ShortUrlPolicy::class)->view($user, $url);
+            });
+        }
         return view('shorturls.index', ['urls' => $urls]);
     }
 
@@ -39,9 +45,11 @@ class ShortUrlController extends Controller
         if ($validator->fails()) {
             return response()->json(['status' => 'ERROR', 'message' => 'Validation failed', 'errors' => $validator->errors()], 422);
         }
+        $shortCode = Str::random(6); 
+        $fullShortUrl = url($shortCode);
         $shortUrl             = new ShortUrl();
         $shortUrl->long_url   = $request->long_url;
-        $shortUrl->short_code = substr(md5(uniqid()), 0, 6);
+        $shortUrl->short_url  = $fullShortUrl;
         $shortUrl->user_id    = auth()->user()->id;
         $shortUrl->company_id = auth()->user()->company_id;
         $shortUrl->save();

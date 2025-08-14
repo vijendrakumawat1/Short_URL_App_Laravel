@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use App\Models\Company;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -25,6 +25,10 @@ class User extends Authenticatable
         'role',
 
     ];
+public function company()
+{
+    return $this->belongsTo(Company::class);
+}
 
     /**
      * The attributes that should be hidden for serialization.

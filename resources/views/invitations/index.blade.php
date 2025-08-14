@@ -10,20 +10,20 @@
                 <table class="table table-bordered table-striped">
                     <thead class="table-light">
                         <tr>
+                            <th>S.No</th>
                             <th>Email</th>
                             <th>Role</th>
-                            <th>Company ID</th>
-                            <th>User ID</th>
-                            <th>Sent At</th>
+                            <th>Company </th>
+                            <th>Created At</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($invitations as $invite)
                             <tr>
+                                <td>{{ $invite->id }}</td>
                                 <td>{{ $invite->email }}</td>
                                 <td>{{ $invite->role }}</td>
-                                <td>{{ $invite->company_id }}</td>
-                                <td>{{ $invite->user_id }}</td>
+                                <td>{{ $invite->company?->name ?? 'N/A' }}</td>
                                 <td>{{ $invite->created_at->format('d M Y H:i') }}</td>
                             </tr>
                         @endforeach
